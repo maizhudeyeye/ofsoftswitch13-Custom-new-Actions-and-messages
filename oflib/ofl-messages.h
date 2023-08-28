@@ -52,6 +52,11 @@ struct ofl_msg_header {
     enum ofp_type   type;   /* One of the OFPT_ constants. */
 };
 
+struct ofl_msg_que_cn_cr{
+    struct ofp_header header;
+    uint16_t queue_length;
+    uint8_t pad[6];
+};
 
 /*********************
  * Immutable messages

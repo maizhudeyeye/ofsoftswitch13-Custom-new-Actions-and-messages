@@ -149,6 +149,8 @@ enum ofp_type {
 
     /* Meters and rate limiters configuration messages. */
     OFPT_METER_MOD          = 29, /* Controller/switch message */
+    OFPT_QUE_CN = 30,
+    OFPT_QUE_CR = 31,
 };
 
 /* Header on all OpenFlow packets. */
@@ -161,6 +163,12 @@ struct ofp_header {
                            to facilitate pairing. */
 };
 OFP_ASSERT(sizeof(struct ofp_header) == 8);
+
+struct ofp_msg_que_cn_cr{
+    struct ofp_header header;
+    uint16_t queue_length;
+    uint8_t pad[6];
+};
 
 /* Hello elements types.
  */

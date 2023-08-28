@@ -51,6 +51,28 @@ OFL_LOG_INIT(LOG_MODULE)
 
 
 static ofl_err
+ofl_msg_unpack_que_cn_cr(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
+
+    struct ofp_msg_que_cn_cr *rep;
+    struct ofl_msg_que_cn_cr *irep;
+
+    /* Check if the message has the expected size */
+    if (*len < sizeof(struct  ofp_msg_que_cn_cr)){
+        OFL_LOG_WARN(LOG_MODULE, "Received MAX_QUEUE_REQUEST message has invalid length (%zu).", *len);
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
+    }
+    *len -= sizeof(struct ofp_msg_que_cn_cr);
+
+    /* Extract the field from the OF message */
+    rep = (struct ofp_msg_que_cn_cr *) src;
+    irep = (struct ofl_msg_que_cn_cr *) malloc(sizeof(struct ofl_msg_que_cn_cr));
+
+    irep->queue_length = ntohs(rep->queue_length);
+    *msg = (struct ofl_msg_header *)irep;
+    return 0;
+}
+
+static ofl_err
 ofl_msg_unpack_error(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
     
     struct ofp_error_msg *se;
@@ -1675,6 +1697,10 @@ ofl_msg_unpack(uint8_t *buf, size_t buf_len, struct ofl_msg_header **msg, uint32
             break;
         case OFPT_SET_CONFIG:
             error = ofl_msg_unpack_set_config(oh, &len, msg);
+            break;
+        case OFPT_QUE_CN:
+        case OFPT_QUE_CR:
+            error = ofl_msg_unpack_que_cn_cr(oh, &len, msg);
             break;
 
         /* Asynchronous messages. */

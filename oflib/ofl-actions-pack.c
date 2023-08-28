@@ -80,6 +80,8 @@ ofl_actions_ofp_len(struct ofl_action_header *action, struct ofl_exp *exp) {
             struct ofl_action_set_field  *a = (struct ofl_action_set_field  *) action;  
             return sizeof(struct ofp_action_set_field) + ROUND_UP(OXM_LENGTH(a->field->header),8) ;
         }    
+        case OFPAT_SET_RWND:
+            return sizeof(struct ofp_action_set_rwnd);
         case OFPAT_EXPERIMENTER: {
             if (exp == NULL || exp->act == NULL || exp->act->ofp_len == NULL) {
                 OFL_LOG_WARN(LOG_MODULE, "requesting experimenter length, but no callback was given.");
