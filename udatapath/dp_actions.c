@@ -90,14 +90,14 @@ output(struct packet *pkt, struct ofl_action_output *action) {
 }
 
 static void
-set_rwnd(struct packet *pkt, struct ofl_action_set_nw_ttl *act) {
+set_rwnd(struct packet *pkt, struct ofl_action_set_rwnd *act) {
     packet_handle_std_validate(pkt->handle_std);
     if (pkt->handle_std->proto->tcp != NULL) {
         struct tcp_header *tcp = pkt->handle_std->proto->tcp;
-        uint16_t old_rwnd = tcp->winsz;
+        uint16_t old_rwnd = tcp->tcp_winsz;
         uint16_t new_rwnd = htons(act->rwnd);
         tcp->tcp_csum = recalc_csum16(tcp->tcp_csum, old_rwnd, new_rwnd);
-        tcp->winsz = new_rwnd;
+        tcp->tcp_winsz = new_rwnd;
         packet_modified (pkt);
     }
     else {

@@ -275,7 +275,7 @@ ofl_actions_unpack(struct ofp_action_header *src, size_t *len, struct ofl_action
             struct ofl_action_set_rwnd *da;
 
             if (*len < sizeof(struct ofp_action_set_rwnd)) {
-                VLOG_WARN(LOG_MODULE, "Received SET_RWND action has invalid length (%zu).", *len);
+                OFL_LOG_WARN(LOG_MODULE, "Received SET_RWND action has invalid length (%zu).", *len);
                 return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_LEN);
             }
 
