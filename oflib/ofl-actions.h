@@ -101,6 +101,11 @@ struct ofl_action_set_field {
     struct ofl_match_tlv *field;
 };
 
+struct ofl_action_set_rwnd {
+    struct ofl_action_header   header; /* OFPAT_SET_RWND. */
+    uint16_t rwnd;
+};
+
 struct ofl_action_experimenter {
     struct ofl_action_header   header; /* OFPAT_EXPERIMENTER. */
 

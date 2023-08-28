@@ -194,6 +194,14 @@ ofl_actions_pack(struct ofl_action_header *src, struct ofp_action_header *dst, u
             dst->len = htons(sizeof(struct ofp_action_header));
             return sizeof(struct ofp_action_header);
         }
+        case OFPAT_SET_RWND:{
+            struct ofl_action_set_rwnd *sa = (struct ofl_action_set_rwnd *) src;
+            struct ofp_action_set_rwnd *da = (struct ofp_action_set_rwnd *) dst;
+            da->len =     htons(sizeof(struct ofp_action_set_rwnd));
+            da->rwnd =    htons(sa->rwnd);
+            memset(da->pad, 0x00, 2);
+            return sizeof(struct ofp_action_set_rwnd);
+        } 
         case OFPAT_SET_FIELD: {
             struct ofl_action_set_field *sa = (struct ofl_action_set_field *) src;
             struct ofp_action_set_field *da = (struct ofp_action_set_field *) dst;

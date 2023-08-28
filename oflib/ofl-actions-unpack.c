@@ -270,6 +270,25 @@ ofl_actions_unpack(struct ofp_action_header *src, size_t *len, struct ofl_action
             break;
         }
 
+        case OFPAT_SET_RWND: {
+            struct ofp_action_set_rwnd *sa;
+            struct ofl_action_set_rwnd *da;
+
+            if (*len < sizeof(struct ofp_action_set_rwnd)) {
+                VLOG_WARN(LOG_MODULE, "Received SET_RWND action has invalid length (%zu).", *len);
+                return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_LEN);
+            }
+
+            sa = (struct ofp_action_set_rwnd *)src;
+
+            da = (struct ofl_action_set_rwnd *)malloc(sizeof(struct ofl_action_set_rwnd));
+            da->rwnd = sa->rwnd;
+
+            *len -= sizeof(struct ofp_action_set_rwnd);
+            *dst = (struct ofl_action_header *)da;
+            break;
+        }
+        
         case OFPAT_SET_FIELD: {
             struct ofp_action_set_field *sa;
             struct ofl_action_set_field *da;

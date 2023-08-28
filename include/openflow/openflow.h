@@ -944,6 +944,7 @@ enum ofp_action_type {
     OFPAT_SET_FIELD    = 25, /* Set a header field using OXM TLV format. */
     OFPAT_PUSH_PBB     = 26, /* Push a new PBB service tag (I-TAG) */
     OFPAT_POP_PBB      = 27, /* Pop the outer PBB service tag (I-TAG) */
+    OFPAT_SET_RWND     = 28, /* Set TCP RWND value. */
     OFPAT_EXPERIMENTER = 0xffff
 };
 
@@ -1039,6 +1040,15 @@ struct ofp_action_set_field {
     uint8_t field[4];               /* OXM TLV - Make compiler happy */
 };
 OFP_ASSERT(sizeof(struct ofp_action_set_field) == 8);
+
+/* Action structure for OFPAT_SET_RWND. */
+struct ofp_action_set_rwnd
+{
+    uint16_t type;                  /* OFPAT_SET_RWND. */
+    uint16_t len;                   /* Length is 8. */
+    uint16_t rwnd;                  /* rwnd value. */
+    uint8_t pad[2];
+};
 
 /* Action header for OFPAT_EXPERIMENTER.
  * The rest of the body is experimenter-defined. */
