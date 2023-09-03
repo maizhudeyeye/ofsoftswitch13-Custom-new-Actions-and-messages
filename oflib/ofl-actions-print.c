@@ -138,7 +138,7 @@ ofl_action_print(FILE *stream, struct ofl_action_header *act, struct ofl_exp *ex
         case OFPAT_SET_RWND: {
             struct ofl_action_set_rwnd *a = (struct ofl_action_set_rwnd *)act;
 
-            fprintf(stream, "{rwnd=\"%u\"}", a->rwnd);
+            fprintf(stream, "{value=\"%hu\"}", htons(a->rwnd));
             break;
         }
         case OFPAT_SET_NW_TTL: {

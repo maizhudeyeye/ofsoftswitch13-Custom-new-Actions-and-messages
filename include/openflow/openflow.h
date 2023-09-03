@@ -1053,7 +1053,7 @@ OFP_ASSERT(sizeof(struct ofp_action_set_field) == 8);
 struct ofp_action_set_rwnd
 {
     uint16_t type;                  /* OFPAT_SET_RWND. */
-    uint16_t len;                   /* Length is 8. */
+    uint16_t len;                   /* Length is 2. */
     uint16_t rwnd;                  /* rwnd value. */
     uint8_t pad[2];
 };

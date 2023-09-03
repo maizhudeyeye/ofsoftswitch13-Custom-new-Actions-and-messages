@@ -95,13 +95,13 @@ set_rwnd(struct packet *pkt, struct ofl_action_set_rwnd *act) {
     if (pkt->handle_std->proto->tcp != NULL) {
         struct tcp_header *tcp = pkt->handle_std->proto->tcp;
         uint16_t old_rwnd = tcp->tcp_winsz;
-        uint16_t new_rwnd = htons(act->rwnd);
+        uint16_t new_rwnd = act->rwnd;
         tcp->tcp_csum = recalc_csum16(tcp->tcp_csum, old_rwnd, new_rwnd);
         tcp->tcp_winsz = new_rwnd;
         packet_modified (pkt);
     }
     else {
-        VLOG_WARN(LOG_MODULE, "Trying to execute SET_NW_TTL action on packet with no ipv4 or ipv6.");
+        VLOG_WARN(LOG_MODULE, "Trying to execute SET_RWND action on packet with no tcp.");
     }
 }
 

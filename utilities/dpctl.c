@@ -169,7 +169,8 @@ static struct names16 action_names[] = {
         {OFPAT_GROUP,          "group"},
         {OFPAT_SET_NW_TTL,     "nw_ttl"},
         {OFPAT_DEC_NW_TTL,     "nw_dec"},
-        {OFPAT_SET_FIELD,      "set_field"}
+        {OFPAT_SET_FIELD,      "set_field"},
+        {OFPAT_SET_RWND,       "set_rwnd"}
 };
 
 static struct names16 band_names[] = {
@@ -2273,6 +2274,14 @@ parse_action(uint16_t type, char *str, struct ofl_action_header **act) {
         case (OFPAT_DEC_NW_TTL): {
             struct ofl_action_header *a = xmalloc(sizeof(struct ofl_action_header));
             (*act) = a;
+            break;
+        }
+        case (OFPAT_SET_RWND): {
+            struct ofl_action_set_rwnd *a = xmalloc(sizeof(struct ofl_action_set_rwnd));
+            if (parse16(str, NULL, 0, UINT16_MAX, &(a->rwnd))) {
+                ofp_fatal(0, "Error parsing rwnd in set_rwnd action: %s.", str);
+            }
+            (*act) = (struct ofl_action_header *)a;
             break;
         }
         default: {

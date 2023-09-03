@@ -76,6 +76,7 @@ action_set_order(struct ofl_action_header *act) {
         case (OFPAT_COPY_TTL_IN):    return 10;
         case (OFPAT_SET_FIELD):      return 60;
         case (OFPAT_SET_MPLS_TTL):   return 60;
+        case (OFPAT_SET_RWND):       return 60;
         case (OFPAT_DEC_MPLS_TTL):   return 50;
         case (OFPAT_PUSH_PBB):       return 30;
         case (OFPAT_POP_PBB):        return 20;
