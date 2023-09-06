@@ -672,6 +672,11 @@ ofl_msg_print_queue_get_config_reply(struct ofl_msg_queue_get_config_reply *msg,
 }
 
 static void
+ofl_msg_print_queue_cn_cr(struct ofl_msg_que_cn_cr *msg, FILE *stream) {
+    fprintf(stream, "{queue_length= %d}", msg->queue_length);
+}
+
+static void
 ofl_msg_print_role_msg(struct ofl_msg_role_request *msg, FILE *stream){
     fprintf(stream, "{role= %d, generation_id= %"PRIu64"}", msg->role, msg->generation_id);
 }
@@ -737,6 +742,11 @@ ofl_msg_print(FILE *stream, struct ofl_msg_header *msg, struct ofl_exp *exp) {
         case OFPT_MULTIPART_REQUEST: { ofl_msg_print_multipart_request((struct ofl_msg_multipart_request_header *)msg, stream, exp); return; }
         case OFPT_MULTIPART_REPLY: { ofl_msg_print_multipart_reply((struct ofl_msg_multipart_reply_header *)msg, stream, exp); return; }
 
+        case OFPT_QUE_CN:
+        case OFPT_QUE_CR:{
+            ofl_msg_print_queue_cn_cr((struct ofl_msg_que_cn_cr*)msg, stream);
+            return;
+        }
         /* Barrier messages. */
         case OFPT_BARRIER_REQUEST: { return; }
         case OFPT_BARRIER_REPLY: { return; }

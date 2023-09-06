@@ -568,6 +568,8 @@ ofl_message_type_print(FILE *stream, uint16_t type) {
 		case OFPT_METER_MOD:				{ fprintf(stream, "meter_mod"); return;}  
 		case OFPT_ROLE_REQUEST:             { fprintf(stream, "role_request"); return;}
 		case OFPT_ROLE_REPLY:               { fprintf(stream, "role_reply"); return;}
+        case OFPT_QUE_CN:                   { fprintf(stream, "queue_congestion_notify"); return;}
+        case OFPT_QUE_CR:                   { fprintf(stream, "queue_congestion_recover"); return;}
 		default: {                            fprintf(stream, "?(%u)", type); return; }
     }
 }

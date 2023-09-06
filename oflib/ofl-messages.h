@@ -53,7 +53,7 @@ struct ofl_msg_header {
 };
 
 struct ofl_msg_que_cn_cr{
-    struct ofp_header header;
+    struct ofl_msg_header header;
     uint16_t queue_length;
     uint8_t pad[6];
 };

@@ -53,14 +53,12 @@ OFL_LOG_INIT(LOG_MODULE)
 static int
 ofl_msg_pack_que_cn_cr(struct ofl_msg_que_cn_cr *msg, uint8_t **buf, size_t *buf_len) {
         struct ofp_msg_que_cn_cr *rep;
-        /* Allocates memory for the OpenFlow message
-        *buf_len = sizeof(struct ofp_que_cn_cr);
+
+        *buf_len = sizeof(struct ofp_msg_que_cn_cr);
         *buf     = (uint8_t *)malloc(*buf_len);
-        /* Point the struct to the buffer address 
-         * By doing it we can simply set the struct fields.
-         */
+
         rep = (struct ofp_msg_que_cn_cr *)(*buf);
-        /* It is important to set the variables in network order */
+
         rep->queue_length =  htons(msg->queue_length);
         memset(rep->pad,0,sizeof(rep->pad));
         return 0;
@@ -1091,10 +1089,10 @@ ofl_msg_pack(struct ofl_msg_header *msg, uint32_t xid, uint8_t **buf, size_t *bu
 			break;
 		}
         case OFPT_QUE_CN:
-        case OFPT_QUE_CR:
+        case OFPT_QUE_CR:{
             error = ofl_msg_pack_que_cn_cr((struct ofl_msg_que_cn_cr *)msg, buf, buf_len);
             break;
-
+        }
         /* Statistics messages. */
         case OFPT_MULTIPART_REQUEST: {
             error = ofl_msg_pack_multipart_request((struct ofl_msg_multipart_request_header *)msg, buf, buf_len, exp);
