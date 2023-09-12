@@ -53,7 +53,12 @@
     (ea)[0], (ea)[1], (ea)[2], (ea)[3], (ea)[4], (ea)[5]
 
 #define IP_FMT "%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8
-
+#define TCP_FIN 0x01
+#define TCP_SYN 0x02
+#define TCP_RST 0x04
+#define TCP_PSH 0x08
+#define TCP_ACK 0x10
+#define TCP_URG 0x20
 char *
 ofl_structs_port_to_string(struct ofl_port *port) {
         char *str;
@@ -266,6 +271,30 @@ ofl_structs_oxm_tlv_print(FILE *stream, struct ofl_match_tlv *f)
 		case OFPXMT_OFB_TCP_DST:
 			fprintf(stream, "tcp_dst=\"%d\"", *((uint16_t*) f->value));
 			break;
+        case OFPXMT_OFB_TCP_FLAGS:{
+            uint16_t value = *((uint16_t*) f->value);
+            char str[64] = "";
+            if (value & TCP_FIN) {
+                strcat(str, "FIN ");
+            }
+            if (value & TCP_SYN) {
+                strcat(str, "SYN ");
+            }
+            if (value & TCP_RST) {
+                strcat(str, "RST ");
+            }
+            if (value & TCP_PSH) {
+                strcat(str, "PSH ");
+            }
+            if (value & TCP_ACK) {
+                strcat(str, "ACK ");
+            }
+            if (value & TCP_URG) {
+                strcat(str, "URG ");
+            }
+            fprintf(stream, "tcp_flags=\"%s\"", str);
+			break;
+        }
 		case OFPXMT_OFB_UDP_SRC:
 			fprintf(stream, "udp_src=\"%d\"", *((uint16_t*) f->value));
 			break;

@@ -1580,6 +1580,14 @@ parse_match(char *str, struct ofl_match_header **match) {
             continue;
         }
 
+        if (strncmp(token, MATCH_TP_FLAGS KEY_VAL, strlen(MATCH_TP_FLAGS KEY_VAL)) == 0) {
+            uint16_t tcp_flags;
+            if (parse16(token + strlen(MATCH_TP_FLAGS KEY_VAL), NULL, 0, 0xffff, &tcp_flags)) {
+                ofp_fatal(0, "Error parsing tcp_flags: %s.", token);
+            }
+            else ofl_structs_match_put16(m, OXM_OF_TCP_FLAGS,tcp_flags);
+            continue;
+        }
         /*UDP */
         if (strncmp(token, MATCH_UDP_SRC KEY_VAL, strlen(MATCH_UDP_SRC KEY_VAL)) == 0) {
             uint16_t udp_src;

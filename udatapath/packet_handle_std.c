@@ -232,6 +232,7 @@ packet_parse (struct packet const *pkt, struct ofl_match *m, struct protocols_st
 
         ofl_structs_match_put16 (m, OXM_OF_TCP_SRC, ntohs (proto->tcp->tcp_src));
         ofl_structs_match_put16 (m, OXM_OF_TCP_DST, ntohs (proto->tcp->tcp_dst));
+        ofl_structs_match_put16 (m, OXM_OF_TCP_FLAGS, ntohs (proto->tcp->tcp_ctl));
 
         /* No processing past TCP */
         return;

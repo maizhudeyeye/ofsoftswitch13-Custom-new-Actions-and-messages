@@ -536,6 +536,28 @@ parse_oxm_entry(struct ofl_match *match, const struct oxm_field *f,
             return 0;
         case NUM_OXM_FIELDS:
             NOT_REACHED();
+        case OFI_OXM_OF_TCP_FLAGS:{
+            uint16_t* tcp_flags = (uint16_t*) value;
+            ofl_structs_match_put16(match, f->header, ntohs(*tcp_flags));
+            return 0;
+        }
+
+        case OFI_OXM_OF_TCP_FLAGS_W:{
+            uint16_t tcp_flags = ntohs((uint16_t*) value);
+            uint16_t tcp_flags_mask = ntohs(*((uint16_t*) mask));
+
+            if (check_bad_wildcard16(tcp_flags, tcp_flags_mask)){
+                return ofp_mkerr(OFPET_BAD_MATCH, OFPBMC_BAD_WILDCARDS);
+            }
+            /* According to OpenFlow only the bits, from the least significant bit, 0 to 11 are valid
+                while the remaining should be always set to 0.
+            */
+            // if (tcp_flags & F000){
+            //     return ofp_mkerr(OFPET_BAD_MATCH, OFPBMC_BAD_VALUE);
+            // }
+        
+            ofl_structs_match_put16m(match, f->header, tcp_flags, tcp_flags_mask);
+        }
     }
     NOT_REACHED();
 }

@@ -489,6 +489,7 @@ enum oxm_ofb_match_fields {
     OFPXMT_OFB_PBB_ISID       = 37, /* PBB I-SID. */
     OFPXMT_OFB_TUNNEL_ID      = 38, /* Logical Port Metadata. */
     OFPXMT_OFB_IPV6_EXTHDR    = 39, /* IPv6 Extension Header pseudo-field */
+    OFPXMT_OFB_TCP_FLAGS = 42, /* TCP flags. */
 };
 
 #define OFPXMT_OFB_ALL    ((UINT64_C(1) << 40) - 1)
@@ -904,6 +905,17 @@ enum ofp_vlan_id {
  * Masking: Maskable. */
 #define OXM_OF_IPV6_EXTHDR   OXM_HEADER  (0x8000, OFPXMT_OFB_IPV6_EXTHDR, 2)
 #define OXM_OF_IPV6_EXTHDR_W OXM_HEADER_W(0x8000, OFPXMT_OFB_IPV6_EXTHDR, 2)
+/* The flags in the TCP header.
+*
+* Prereqs:
+* OXM_OF_ETH_TYPE must be either 0x0800 or 0x86dd.
+* OXM_OF_IP_PROTO must match 6 exactly.
+*
+* Format: 16-bit integer with 4 most-significant bits forced to 0.
+*
+* Masking: Bits 0-11 fully maskable. */
+#define OXM_OF_TCP_FLAGS OXM_HEADER (0x8000, OFPXMT_OFB_TCP_FLAGS, 2)
+#define OXM_OF_TCP_FLAGS_W OXM_HEADER_W(0x8000, OFPXMT_OFB_TCP_FLAGS, 2)
 
 /* Bit definitions for IPv6 Extension Header pseudo-field. */
 enum ofp_ipv6exthdr_flags {      
