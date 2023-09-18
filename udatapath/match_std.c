@@ -236,6 +236,17 @@ packet_match(struct ofl_match *flow_match, struct ofl_match *packet){
                         }
                         break;
                     }
+                    case OXM_OF_TCP_FLAGS: {
+                        if (has_mask) {
+                            if (!match_mask8(flow_val, flow_mask, packet_val))
+                                return false;
+                        }
+                        else {
+                            if (!match_8(flow_val, packet_val))
+                                return false;
+                        }
+                        break;
+                    }
                     default:
                         if (has_mask) {
                             if (!match_mask16(flow_val, flow_mask, packet_val))
