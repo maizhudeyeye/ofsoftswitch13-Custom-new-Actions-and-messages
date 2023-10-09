@@ -68,6 +68,7 @@ ofl_msg_unpack_que_cn_cr(struct ofp_header *src, size_t *len, struct ofl_msg_hea
     irep = (struct ofl_msg_que_cn_cr *) malloc(sizeof(struct ofl_msg_que_cn_cr));
 
     irep->queue_length = ntohs(rep->queue_length);
+    irep->port_no = ntohs(rep->port_no);
     *msg = (struct ofl_msg_header *)irep;
     return 0;
 }

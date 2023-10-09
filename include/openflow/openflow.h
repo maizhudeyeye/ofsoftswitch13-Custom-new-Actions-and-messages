@@ -167,7 +167,8 @@ OFP_ASSERT(sizeof(struct ofp_header) == 8);
 struct ofp_msg_que_cn_cr{
     struct ofp_header header;
     uint16_t queue_length;
-    uint8_t pad[6];
+    uint32_t port_no;
+    uint8_t pad[2];
 };
 
 /* Hello elements types.

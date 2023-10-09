@@ -60,6 +60,7 @@ ofl_msg_pack_que_cn_cr(struct ofl_msg_que_cn_cr *msg, uint8_t **buf, size_t *buf
         rep = (struct ofp_msg_que_cn_cr *)(*buf);
 
         rep->queue_length =  htons(msg->queue_length);
+        rep->port_no =  htons(msg->port_no);
         memset(rep->pad,0,sizeof(rep->pad));
         return 0;
 }

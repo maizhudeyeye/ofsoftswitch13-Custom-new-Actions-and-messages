@@ -673,7 +673,7 @@ ofl_msg_print_queue_get_config_reply(struct ofl_msg_queue_get_config_reply *msg,
 
 static void
 ofl_msg_print_queue_cn_cr(struct ofl_msg_que_cn_cr *msg, FILE *stream) {
-    fprintf(stream, "{queue_length= %d}", msg->queue_length);
+    fprintf(stream, "{prot_no= %d, queue_length= %d}", msg->port_no, msg->queue_length);
 }
 
 static void

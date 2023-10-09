@@ -55,7 +55,8 @@ struct ofl_msg_header {
 struct ofl_msg_que_cn_cr{
     struct ofl_msg_header header;
     uint16_t queue_length;
-    uint8_t pad[6];
+    uint32_t port_no;
+    uint8_t pad[2];
 };
 
 /*********************
