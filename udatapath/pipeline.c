@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "action_set.h"
 #include "compiler.h"
@@ -60,7 +61,7 @@
 #define LOG_MODULE VLM_pipeline
 
 static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(60, 60);
-
+bool isInitialFlag = 0;
 static void
 execute_entry(struct pipeline *pl, struct flow_entry *entry,
               struct flow_table **table, struct packet **pkt);
@@ -79,6 +80,8 @@ pipeline_create(struct datapath *dp) {
     for (i = 0; i < pl->num_tables; i++) {
         pl->tables[i] = flow_table_create(pl, i);
     }
+    initialize_elephant_array(top_k_array, TOP_K);
+    isInitialFlag = 1;
     return pl;
 }
 
@@ -140,7 +143,7 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
         packet_destroy(pkt);
         return;
     }
-
+    packet_get_four_tuple(pkt);
     next_table = pl->tables[0];
     while (next_table != NULL) {
         struct flow_entry *entry;
@@ -192,6 +195,103 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
     }
     VLOG_WARN_RL(LOG_MODULE, &rl, "Datapath %lu Reached outside of pipeline processing cycle.", pl->dp->id);
 }
+
+/* Extracting the four-tuple from a data packet. */
+/**
+ * @brief 获取数据包的四元组
+ * 
+ * @param pkt 数据包元数据
+ */
+bool 
+packet_get_four_tuple(struct packet *pkt){
+    struct ofl_match_tlv *f;
+    int packet_header;
+    uint8_t *packet_val;
+    uint8_t flag = 0;
+    enum {
+        FLAG_IP_SRC = 1,
+        FLAG_IP_DST = 2,
+        FLAG_TCP_SRC = 4,
+        FLAG_TCP_DST = 8,
+        FLAG_FOUR_TUPLE = 15
+    };
+    struct packet_handle_std *handle = pkt->handle_std;
+
+    struct four_tuple *ft = malloc(sizeof(struct four_tuple));
+
+    if (ft == NULL) {
+        // 处理内存分配失败的情况
+        return false;
+    }
+
+    if (!handle->valid){
+        //判断数据包里面的match是否有数据，没有就解析并保存到match中
+        packet_handle_std_validate(handle);
+        if (!handle->valid){
+            free(ft);
+            return false;
+        }
+    }
+    struct ofl_match *match = &handle->match;
+    //循环查找四元组
+    HMAP_FOR_EACH(f, struct ofl_match_tlv, hmap_node, &match->match_fields){
+        packet_header = f->header;
+        packet_val = f->value;
+        if(packet_header != 0 && *packet_val != 0){
+            switch (packet_header)
+            {
+            case OXM_OF_IPV4_SRC:
+                ft->ip_src = *((uint32_t *)packet_val);
+                flag |= FLAG_IP_SRC;
+                break;
+            case OXM_OF_IPV4_DST:
+                ft->ip_dst = *((uint32_t *)packet_val);
+                flag |= FLAG_IP_DST;
+                break;
+            case OXM_OF_TCP_SRC:
+                ft->tcp_src = *((uint16_t *)packet_val);
+                flag |= FLAG_TCP_SRC;
+                break;
+            case OXM_OF_TCP_DST:
+                ft->tcp_dst = *((uint16_t *)packet_val);
+                flag |= FLAG_TCP_DST;
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    if(ft != NULL && flag == FLAG_FOUR_TUPLE){
+        // VLOG_DBG_RL(LOG_MODULE, &rl, "--ft->ip_src: %u, --ft->ip_dst: %u, --ft->tcp_src: %u, --ft->tcp_dst: %u, ", 
+        //             ft->ip_src, ft->ip_dst, ft->tcp_src, ft->tcp_dst);
+        record_sketch(ft);
+        free(ft);
+        return true;
+    }else{
+        free(ft);
+        return false;
+    }
+}
+
+void
+pipeline_handle_sketch_data(struct pipeline *pl, const struct sender *sender){
+    struct ofl_msg_sketch_data msg;
+    msg.header.type = OFPT_SKETCH_DATA;
+    if(isInitialFlag == 0){
+        initialize_elephant_array(top_k_array, TOP_K);
+        isInitialFlag = 1;
+    }
+    for(uint8_t i = 0; i < TOP_K; i++){
+        msg.elephant_flow[i].ip_src = top_k_array[i].ft.ip_src;
+        msg.elephant_flow[i].ip_dst = top_k_array[i].ft.ip_dst;
+        msg.elephant_flow[i].tcp_src = top_k_array[i].ft.tcp_src;
+        msg.elephant_flow[i].tcp_dst = top_k_array[i].ft.tcp_dst; 
+    }
+    initialize_elephant_array(top_k_array, TOP_K);
+    dp_send_message (pl->dp, (struct ofl_msg_header *)&msg, sender);
+    return;
+}
+
 
 static
 int inst_compare(const void *inst1, const void *inst2){

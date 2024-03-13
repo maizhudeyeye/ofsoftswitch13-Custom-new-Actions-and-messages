@@ -52,7 +52,7 @@ struct pipeline {
     struct flow_table  *tables[OFPTT_MAX + 1];
     size_t              num_tables;
 };
-
+extern bool isInitialFlag;
 /* The default number of pipeline tables */
 #define PIPELINE_NUM_TABLES 64
 BUILD_ASSERT_DECL((PIPELINE_NUM_TABLES >= 1) && (PIPELINE_NUM_TABLES <= (OFPTT_MAX + 1)));
@@ -72,6 +72,15 @@ send_packet_to_controller(struct pipeline *pl, struct packet *pkt, uint8_t table
 void
 pipeline_process_packet(struct pipeline *pl, struct packet *pkt);
 
+/* Extracting the four-tuple from a data packet. */
+bool 
+packet_get_four_tuple(struct packet *pkt);
+
+void
+pipeline_handle_sketch_data(struct pipeline *pl, const struct sender *sender);
+
+struct four_tuple* 
+get_elephant_array();
 
 /* Handles a flow_mod message. */
 ofl_err

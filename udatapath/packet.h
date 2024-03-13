@@ -41,6 +41,9 @@
 #include "oflib/ofl-structs.h"
 #include "packets.h"
 
+#define TOP_K 10
+#define MOD 10
+#define LAMDA 8
 
 /****************************************************************************
  * Represents a packet received on the datapath, and its associated processing
@@ -75,6 +78,22 @@ struct packet {
 #endif
 };
 
+struct four_tuple{
+    uint32_t ip_src;
+    uint32_t ip_dst;
+    uint16_t tcp_src;
+    uint16_t tcp_dst;
+};
+
+struct elephant_node{
+    bool exist_flow_flag;
+    uint32_t vote_yes;
+    uint32_t vote_no;
+    struct four_tuple ft;
+};
+
+extern struct elephant_node top_k_array[TOP_K];
+
 /* Creates a packet. */
 struct packet *
 packet_create(struct datapath *dp, uint32_t in_port, struct ofpbuf *buf, uint64_t tunnel_id, bool packet_out);
@@ -90,5 +109,22 @@ packet_destroy(struct packet *pkt);
 /* Clones a packet deeply, i.e. all associated structures are also cloned. */
 struct packet *
 packet_clone(struct packet *pkt);
+
+/* Compute the hash of a data packet and record it in a sketch. */
+void 
+record_sketch(const struct four_tuple *ft);
+
+uint8_t 
+sketch_hash(const struct four_tuple *ft);
+
+void 
+initialize_elephant_array(struct elephant_node *array, uint8_t length);
+
+void 
+clear_elephant_node(struct elephant_node *node);
+
+/* Compare four tuple. */
+int 
+four_tuple_compare(const struct four_tuple *a, const struct four_tuple *b);
 
 #endif /* UDP_PACKET_H */

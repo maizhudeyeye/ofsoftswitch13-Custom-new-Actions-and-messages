@@ -66,6 +66,24 @@ ofl_msg_pack_que_cn_cr(struct ofl_msg_que_cn_cr *msg, uint8_t **buf, size_t *buf
 }
 
 static int
+ofl_msg_pack_sketch_data(struct ofl_msg_sketch_data *msg, uint8_t **buf, size_t *buf_len) {
+        struct ofp_msg_sketch_data *rep;
+
+        *buf_len = sizeof(struct ofp_msg_sketch_data);
+        *buf     = (uint8_t *)malloc(*buf_len);
+
+        rep = (struct ofp_msg_sketch_data *)(*buf);
+
+        for(uint8_t i = 0; i < 10; i++){
+            rep->elephant_flow[i].ip_src = htonl(msg->elephant_flow[i].ip_src);
+            rep->elephant_flow[i].ip_dst = htonl(msg->elephant_flow[i].ip_dst);
+            rep->elephant_flow[i].tcp_src = htons(msg->elephant_flow[i].tcp_src);
+            rep->elephant_flow[i].tcp_dst = htons(msg->elephant_flow[i].tcp_dst);
+        }
+        return 0;
+}
+
+static int
 ofl_msg_pack_error(struct ofl_msg_error *msg, uint8_t **buf, size_t *buf_len) {
     struct ofp_error_msg *err;
 
@@ -1092,6 +1110,10 @@ ofl_msg_pack(struct ofl_msg_header *msg, uint32_t xid, uint8_t **buf, size_t *bu
         case OFPT_QUE_CN:
         case OFPT_QUE_CR:{
             error = ofl_msg_pack_que_cn_cr((struct ofl_msg_que_cn_cr *)msg, buf, buf_len);
+            break;
+        }
+        case OFPT_SKETCH_DATA:{
+            error = ofl_msg_pack_sketch_data((struct ofl_msg_sketch_data *)msg, buf, buf_len);
             break;
         }
         /* Statistics messages. */

@@ -74,6 +74,32 @@ ofl_msg_unpack_que_cn_cr(struct ofp_header *src, size_t *len, struct ofl_msg_hea
 }
 
 static ofl_err
+ofl_msg_unpack_sketch_data(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
+
+    struct ofp_msg_sketch_data *rep;
+    struct ofl_msg_sketch_data *irep;
+
+    /* Check if the message has the expected size */
+    if (*len < sizeof(struct  ofp_msg_sketch_data)){
+        OFL_LOG_WARN(LOG_MODULE, "Received MAX_QUEUE_REQUEST message has invalid length (%zu).", *len);
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
+    }
+    *len -= sizeof(struct ofp_msg_sketch_data);
+
+    /* Extract the field from the OF message */
+    rep = (struct ofp_msg_sketch_data *) src;
+    irep = (struct ofl_msg_sketch_data *) malloc(sizeof(struct ofl_msg_sketch_data));
+    for(uint8_t i = 0; i < 10; i++){
+        irep->elephant_flow[i].ip_src = ntohl(rep->elephant_flow[i].ip_src);
+        irep->elephant_flow[i].ip_dst = ntohl(rep->elephant_flow[i].ip_dst);
+        irep->elephant_flow[i].tcp_src = ntohs(rep->elephant_flow[i].tcp_src);
+        irep->elephant_flow[i].tcp_dst = ntohs(rep->elephant_flow[i].tcp_dst);
+    }
+    *msg = (struct ofl_msg_header *)irep;
+    return 0;
+}
+
+static ofl_err
 ofl_msg_unpack_error(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
     
     struct ofp_error_msg *se;
@@ -1703,7 +1729,9 @@ ofl_msg_unpack(uint8_t *buf, size_t buf_len, struct ofl_msg_header **msg, uint32
         case OFPT_QUE_CR:
             error = ofl_msg_unpack_que_cn_cr(oh, &len, msg);
             break;
-
+        case OFPT_SKETCH_DATA:
+            error = ofl_msg_unpack_sketch_data(oh, &len, msg);
+            break;
         /* Asynchronous messages. */
         case OFPT_PACKET_IN:
             error = ofl_msg_unpack_packet_in(oh,buf, &len, msg);

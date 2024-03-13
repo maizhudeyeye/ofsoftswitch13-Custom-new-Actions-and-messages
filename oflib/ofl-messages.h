@@ -51,12 +51,32 @@
 struct ofl_msg_header {
     enum ofp_type   type;   /* One of the OFPT_ constants. */
 };
-
+/**
+ * @brief 队列拥塞或者恢复的ofl消息格式
+ * 
+ */
 struct ofl_msg_que_cn_cr{
     struct ofl_msg_header header;
     uint16_t queue_length;
     uint32_t port_no;
     uint8_t pad[2];
+};
+
+
+struct ofl_sketch{
+    uint32_t ip_src;
+    uint32_t ip_dst;
+    uint16_t tcp_src;
+    uint16_t tcp_dst;
+};
+
+/**
+ * @brief sketch消息格式
+ * 
+ */
+struct ofl_msg_sketch_data{
+    struct ofl_msg_header header;
+    struct ofl_sketch elephant_flow[10];
 };
 
 /*********************

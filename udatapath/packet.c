@@ -112,6 +112,7 @@ packet_clone(struct packet *pkt) {
     return clone;
 }
 
+struct elephant_node top_k_array[TOP_K];
 void
 packet_destroy(struct packet *pkt) {
     /* If packet is saved in a buffer, do not destroy it,
@@ -163,4 +164,93 @@ packet_to_string(struct packet *pkt) {
 
     fclose(stream);
     return str;
+}
+
+/**
+ * @brief 计算hash值
+ * 
+ * @param ft 数据包四元组
+ * @return uint8_t 返回hash值
+ */
+uint8_t sketch_hash(const struct four_tuple *ft){
+    // 对每个成员进行取模操作
+    uint32_t ip_src_mod = (ft->ip_src) % MOD;
+    uint32_t ip_dst_mod = (ft->ip_dst) % MOD;
+    uint32_t tcp_src_mod = (ft->tcp_src) % MOD;
+    uint32_t tcp_dst_mod = (ft->tcp_dst) % MOD;
+
+    // 求和
+    uint32_t sum = ip_src_mod + ip_dst_mod + tcp_src_mod + tcp_dst_mod;
+
+    // 对和再取模
+    uint8_t hash_value = sum % MOD;
+    return hash_value;
+}
+
+/* Compute the hash of a data packet and record it in a sketch. */
+/**
+ * @brief 计算数据包四元组的hash值并把它记录到sketch中
+ * 
+ * @param ft 数据包四元组
+ */
+void record_sketch(const struct four_tuple *ft){
+    uint8_t hash_value = sketch_hash(ft);
+    if(top_k_array[hash_value].exist_flow_flag == 0){
+        top_k_array[hash_value].ft.ip_src = ft->ip_src;
+        top_k_array[hash_value].ft.ip_dst = ft->ip_dst;
+        top_k_array[hash_value].ft.tcp_src = ft->tcp_src;
+        top_k_array[hash_value].ft.tcp_dst = ft->tcp_dst;
+        top_k_array[hash_value].vote_yes++;
+        top_k_array[hash_value].exist_flow_flag = 1;
+    }else{
+        if(four_tuple_compare(ft, &top_k_array[hash_value].ft) == 0){
+            top_k_array[hash_value].vote_yes++;
+        }else{
+            top_k_array[hash_value].vote_no++;
+        }
+        if(top_k_array[hash_value].vote_no >= LAMDA * top_k_array[hash_value].vote_yes){
+            clear_elephant_node(&top_k_array[hash_value]);
+        }
+    }
+}
+/**
+ * @brief 初始化sketch数据结构
+ * 
+ * @param array 大象流数组
+ * @param length 数组长度
+ */
+void initialize_elephant_array(struct elephant_node *array, uint8_t length){
+    for(uint8_t i = 0; i < length; i++){
+        clear_elephant_node(&array[i]);
+    }
+}
+
+/**
+ * @brief 清除数组中某一项
+ * 
+ * @param node 
+ */
+void clear_elephant_node(struct elephant_node *node){
+    node->ft.ip_src = 0;
+    node->ft.ip_dst = 0;
+    node->ft.tcp_src = 0;
+    node->ft.tcp_dst = 0;
+    node->vote_no = 0;
+    node->vote_yes = 0;
+    node->exist_flow_flag = 0;
+}
+
+/**
+ * @brief 比较两个四元组是否相同
+ * 
+ * @param a 第一个四元组
+ * @param b 第二个四元组
+ * @return int 0相同，-1不同
+ */
+int four_tuple_compare(const struct four_tuple *a, const struct four_tuple *b) {
+    if (a->ip_src != b->ip_src) return -1;
+    if (a->ip_dst != b->ip_dst) return -1;
+    if (a->tcp_src != b->tcp_src) return -1;
+    if (a->tcp_dst != b->tcp_dst) return -1;
+    return 0; // equal
 }
