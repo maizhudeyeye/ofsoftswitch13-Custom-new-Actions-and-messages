@@ -272,7 +272,12 @@ packet_get_four_tuple(struct packet *pkt){
         return false;
     }
 }
-
+/**
+ * @brief pipeline构建openflow消息发送sketch数据
+ * 
+ * @param pl pipeline管道
+ * @param sender 发送方
+ */
 void
 pipeline_handle_sketch_data(struct pipeline *pl, const struct sender *sender){
     struct ofl_msg_sketch_data msg;
